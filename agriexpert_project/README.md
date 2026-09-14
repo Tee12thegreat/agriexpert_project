@@ -48,6 +48,37 @@ python manage.py runserver
 
 Then open http://127.0.0.1:8000/
 
+## Deploying to Render
+
+This project ships with `build.sh`, `Procfile`, and `render.yaml` already set up.
+
+**Quickest path (Blueprint):**
+1. Push this project to a GitHub repo.
+2. In Render, click **New → Blueprint**, point it at the repo — it reads
+   `render.yaml` and creates the web service **and** a free Postgres database
+   automatically, wiring `DATABASE_URL` and a random `SECRET_KEY` for you.
+3. Click **Apply**. First deploy takes a few minutes (installs deps, runs
+   migrations, seeds the knowledge base, trains the ML model).
+
+**Manual path (New Web Service):**
+1. Push to GitHub, then in Render click **New → Web Service** and connect the repo.
+2. Runtime: Python 3. Build command: `./build.sh`. Start command:
+   `gunicorn agriexpert_project.wsgi:application`.
+3. Add a Postgres database (**New → PostgreSQL**, free tier is fine), then
+   in the web service's **Environment** tab add `DATABASE_URL` (copy the
+   Internal Connection String from the Postgres dashboard).
+4. Add `SECRET_KEY` (any long random string) and `DEBUG=False`.
+5. Deploy.
+
+**Why Postgres, not SQLite, on Render:** Render's filesystem is ephemeral —
+anything written to disk (including a SQLite file) is wiped on every
+redeploy or restart. `settings.py` already falls back to SQLite locally but
+picks up `DATABASE_URL` automatically when it's set, so once you attach the
+Postgres add-on your diagnosis history, feedback, and admin users persist
+across deploys. The trained `.joblib` ML model file itself is fine to lose
+on redeploy — `build.sh` retrains it from `core/data/crop_dataset.csv` (plus
+any feedback already in the database) every time.
+
 ## Notes
 
 - The ML advisor's seed dataset (`core/data/crop_dataset.csv`) is synthetic,

@@ -1,6 +1,8 @@
 __pycache__/
 *.pyc
 db.sqlite3
+staticfiles/
 ml_models/*.joblib
 ml_models/*.json
 venv/
+.env
