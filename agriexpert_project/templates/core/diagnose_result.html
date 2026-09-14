@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Diagnosis results &mdash; {{ session.crop|title }}</h3>
+<p class="text-muted">Observed symptoms: {{ session.symptoms_selected|join:", " }}</p>
+
+{% if session.results %}
+  {% for r in session.results %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">{{ r.conclusion }}</h5>
+          <span class="badge bg-success">{{ r.confidence_pct }}% certainty</span>
+        </div>
+        <div class="cf-bar my-2"><div class="cf-bar-fill" style="width: {{ r.confidence_pct }}%"></div></div>
+        <p class="mb-1"><strong>Matched symptoms:</strong> {{ r.matched_symptoms|join:", " }}</p>
+        <p><strong>Recommended action:</strong> {{ r.advice }}</p>
+
+        {% if r.rule_id in already_rated_ids %}
+          <span class="text-muted small">✓ Feedback recorded for this result.</span>
+        {% else %}
+          <form method="post" class="d-flex align-items-center gap-3">
+            {% csrf_token %}
+            <input type="hidden" name="rule_id" value="{{ r.rule_id }}">
+            <span class="small text-muted">Was this correct?</span>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_correct" value="yes" id="yes-{{ r.rule_id }}" required>
+              <label class="form-check-label" for="yes-{{ r.rule_id }}">Yes</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_correct" value="no" id="no-{{ r.rule_id }}">
+              <label class="form-check-label" for="no-{{ r.rule_id }}">No</label>
+            </div>
+            <button type="submit" class="btn btn-sm btn-outline-success">Submit feedback</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  <p class="text-muted small">Your feedback adapts this rule's confidence factor for future
+    diagnoses (adaptive learning component).</p>
+{% else %}
+  <div class="alert alert-warning">No rule matched strongly enough for this symptom combination.
+    Try selecting more symptoms, or consult a local agronomist.</div>
+{% endif %}
+
+<a href="{% url 'diagnose' %}" class="btn btn-outline-success">Run another diagnosis</a>
+{% endblock %}

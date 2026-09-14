@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Recommendation</h3>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <h4>Best-fit crop: <span class="text-success">{{ session.predicted_crop|title }}</span></h4>
+    <div class="cf-bar my-2"><div class="cf-bar-fill" style="width: {{ session.confidence }}%"></div></div>
+    <p>Confidence: <strong>{{ session.confidence }}%</strong> (model {{ session.model_version }})</p>
+
+    {% if session.alternatives %}
+      <p class="mb-1"><strong>Other reasonable options:</strong></p>
+      <ul>
+        {% for alt in session.alternatives %}
+          <li>{{ alt.crop|title }} &mdash; {{ alt.confidence }}%</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <p class="text-muted small mt-3">Inputs used: N={{ session.n }}, P={{ session.p }}, K={{ session.k }},
+      Temp={{ session.temperature }}°C, Humidity={{ session.humidity }}%, pH={{ session.ph }},
+      Rainfall={{ session.rainfall }}mm</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h5>Help the model learn</h5>
+    {% if already_gave_feedback %}
+      <p class="text-muted">✓ You already gave feedback on this recommendation — thank you.</p>
+    {% else %}
+      <p class="text-muted small">Tell us what actually worked best on this plot. Confirmed cases
+        are folded back into the training data (adaptive learning component) the next time the
+        model is retrained.</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="session_id" value="{{ session.id }}">
+        <div class="mb-2">
+          <label class="form-label">Was this recommendation helpful?</label><br>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="was_helpful" value="yes" id="wh-yes" required>
+            <label class="form-check-label" for="wh-yes">Yes</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="was_helpful" value="no" id="wh-no">
+            <label class="form-check-label" for="wh-no">No</label>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">{{ fb_form.actual_best_crop.label }}</label>
+          {{ fb_form.actual_best_crop }}
+          <div class="form-text">{{ fb_form.actual_best_crop.help_text }}</div>
+        </div>
+        <button type="submit" class="btn btn-outline-success">Submit feedback</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<a href="{% url 'crop_advisor' %}" class="btn btn-outline-success mt-3">Run another recommendation</a>
+{% endblock %}

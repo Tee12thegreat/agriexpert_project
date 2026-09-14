@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Model &amp; Knowledge Base Health</h3>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5>ML Crop Advisor</h5>
+    <p class="text-muted small">{{ pending_feedback }} confirmed feedback case(s) available to
+      fold into the next training run.</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="retrain">
+      <button type="submit" class="btn btn-success">Retrain model now</button>
+    </form>
+    <table class="table table-sm mt-3">
+      <thead><tr><th>Version</th><th>Accuracy</th><th>Training samples</th><th>Trained at</th><th>Notes</th></tr></thead>
+      <tbody>
+        {% for m in model_history %}
+          <tr><td>{{ m.version }}</td><td>{{ m.accuracy|floatformat:3 }}</td>
+              <td>{{ m.n_training_samples }}</td><td>{{ m.trained_at }}</td><td>{{ m.notes }}</td></tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-muted">No model trained yet — one will be trained automatically on first use.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h5>Rule-Based Knowledge Base</h5>
+    <p class="text-muted small">Certainty factors adapt automatically from farmer feedback on diagnoses.</p>
+    <table class="table table-sm">
+      <thead><tr><th>Crop</th><th>Conclusion</th><th>CF</th><th>Confirmed</th><th>Rejected</th></tr></thead>
+      <tbody>
+        {% for r in rules %}
+          <tr>
+            <td>{{ r.crop }}</td><td>{{ r.conclusion }}</td>
+            <td>{{ r.base_cf|floatformat:2 }}</td>
+            <td>{{ r.times_confirmed }}</td><td>{{ r.times_rejected }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

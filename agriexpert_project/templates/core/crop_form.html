@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h3 class="card-title">Crop &amp; Fertiliser-Fit Advisor</h3>
+    <p class="text-muted">Enter your latest soil test and local climate figures. A
+      machine-learning model trained on agronomic case data will recommend the
+      best-fit crop, with a confidence score and runner-up alternatives.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-3">
+        {% for field in form %}
+          <div class="col-md-4">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-success mt-4">Get recommendation</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="p-4 mb-4 bg-white rounded-3">
+  <h1 class="display-6">Agricultural Expert System</h1>
+  <p class="lead">
+    Two intelligent advisors working together: a rule-based diagnosis engine with
+    certainty-factor reasoning for pests &amp; diseases, and a machine-learning
+    advisor for crop/fertiliser fit &mdash; both improve as farmers give feedback.
+  </p>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">🐛 Pest &amp; Disease Diagnosis</h5>
+        <p class="card-text">Select a crop and the symptoms you observe. The rule-based
+          inference engine ranks likely causes with a confidence score, and offers
+          treatment advice.</p>
+        <a href="{% url 'diagnose' %}" class="btn btn-success">Start diagnosis</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">🌱 Crop &amp; Fertiliser Advisor</h5>
+        <p class="card-text">Enter soil (N, P, K, pH) and climate readings. A trained
+          machine-learning model recommends the best-fit crop with a confidence
+          score and runner-up options.</p>
+        <a href="{% url 'crop_advisor' %}" class="btn btn-success">Get a recommendation</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-3"><div class="card"><div class="card-body text-center">
+    <div class="fs-2 fw-bold">{{ n_rules }}</div><div>Rules in knowledge base</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body text-center">
+    <div class="fs-2 fw-bold">{{ n_diagnoses }}</div><div>Diagnoses run</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body text-center">
+    <div class="fs-2 fw-bold">{{ n_crop_sessions }}</div><div>Crop recommendations run</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body text-center">
+    <div class="fs-2 fw-bold">{% if model_meta %}{{ model_meta.version }}{% else %}&mdash;{% endif %}</div>
+    <div>Active ML model{% if model_meta %} ({{ model_meta.accuracy|floatformat:2 }} acc){% endif %}</div>
+  </div></div></div>
+</div>
+{% endblock %}
